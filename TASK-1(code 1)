@@ -1,8 +1,6 @@
 def reverse_string(s):
-    reversed = ""
-    for i in range(len(s) - 1, -1, -1):
-        reversed += s[i]
-    return reversed
+    reversed_str = s[::-1]  # Use slicing to reverse the string
+    return reversed_str  # Change variable name to avoid conflict
 
 def main():
     input_string = "Hello, world!"
@@ -11,4 +9,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
