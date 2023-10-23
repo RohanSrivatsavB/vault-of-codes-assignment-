@@ -1,0 +1,59 @@
+import re
+import time
+
+def check_password_strength(password):
+    length = len(password)
+    if length > 8:
+        return "Strong"
+    elif 6 <= length <= 8:
+        return "Medium"
+    else:
+        return "Weak"
+
+def contains_lowercase(password):
+    return bool(re.search(r'[a-z]', password))
+
+def contains_uppercase(password):
+    return bool(re.search(r'[A-Z]', password))
+
+def contains_digit(password):
+    return bool(re.search(r'\d', password))
+
+def contains_special_character(password):
+    return bool(re.search(r'[!@#$%^&*]', password))
+
+def main():
+    print("Welcome to the Password Strength Checker!")
+    time.sleep(1)
+
+    print("\nLet's evaluate the strength of your password.")
+    time.sleep(1)
+
+    password = input("Enter your password: ")
+    time.sleep(1)
+    print("Please wait while we analyze your password...")
+    time.sleep(2)
+
+    confirm_password = input("Now, please confirm your password: ")
+
+    if password != confirm_password:
+        print("\nPasswords do not match. Please try again.")
+        return
+
+    print("\nAnalyzing the password...\n")
+    time.sleep(2)
+
+    strength = check_password_strength(password)
+
+    if contains_lowercase(password) or contains_uppercase(password) or contains_digit(password):
+        strength = "Medium"
+
+    if contains_special_character(password):
+        strength = "Strong"
+
+    print("Password Strength: " + strength)
+    print("\nThank you for using the Password Strength Checker!")
+    print("Keep your password secure and memorable.")
+
+if __name__ == "__main__":
+    main()
