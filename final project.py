@@ -1,59 +1,81 @@
+from cgi import print_arguments
 import tkinter as tk
-from tkinter import messagebox
+import requests
 
-# Function to add a task and apply a simple animation
-def add_task():
-    task = task_entry.get()
-    if task:
-        task_list.insert(tk.END, "✅ " + task)  # Added a checkmark emoji
-        task_entry.delete(0, tk.END)
-        animate(task_list, "green")
+# OpenWeatherMap API
+API_KEY = '92a0479f304d64e70eda4edf4f6a9222'
+BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
 
-# Function to remove a task and apply a simple animation
-def remove_task():
-    try:
-        selected_task = task_list.get(task_list.curselection())
-        task_list.delete(tk.ACTIVE)
-        animate(task_list, "red")
-    except:
-        pass
+# Emojis for different weather conditions
+weather_emojis = {
+    'Clear': '☀️',
+    'Clouds': '☁️',
+    'Rain': '🌧️',
+    'Snow': '❄️',
+    'Thunderstorm': '⛈️',
+    'Drizzle': '🌦️',
+    'Mist': '🌫️',
+    'Smoke': '💨',
+    'Haze': '🌫️',
+    'Dust': '💨',
+    'Fog': '🌫️',
+    'Sand': '💨',
+    'Ash': '💨',
+    'Squall': '💨',
+    'Tornado': '🌪️'
+}
 
-# Function for a simple color animation
-def animate(widget, color):
-    widget.configure(bg=color)
-    window.after(100, lambda: widget.configure(bg="white"))
+def get_weather(city):
+    response = requests.get(BASE_URL, params={'q': city, 'appid': API_KEY})
+    weather_data = response.json()
 
-def show_list():
-    tasks = task_list.get(0, tk.END)
-    if not tasks:
-        messagebox.showinfo("To-Do List", "Your to-do list is empty.")
+    if weather_data['cod'] == 200:
+        city = weather_data['name']
+        country = weather_data['sys']['country']
+        temp_kelvin = weather_data['main']['temp']
+        temp_celsius = round(temp_kelvin - 273.15, 2)
+        weather = weather_data['weather'][0]['main']
+        description = weather_data['weather'][0]['description']
+        humidity = weather_data['main']['humidity']
+        wind_speed = weather_data['wind']['speed']
+
+        lbl_location.config(text=f'{city}, {country} {weather_emojis.get(weather, "")}')
+        lbl_temperature.config(text=f'Temperature: {temp_celsius} °C')
+        lbl_weather.config(text=f'Weather: {weather}')
+        lbl_description.config(text=f'Description: {description}')
+        lbl_humidity.config(text=f'Humidity: {humidity}%')
+        lbl_wind_speed.config(text=f'Wind Speed: {wind_speed} m/s')
     else:
-        task_list_text = "\n".join(tasks)
-        messagebox.showinfo("To-Do List", task_list_text)
+        print_arguments('Error', f'Cannot find city: {city} 😞')
 
-# Create the main window
-window = tk.Tk()
-window.title("To-Do List")
+def search():
+    get_weather(txt_city.get())
 
-# Create a task entry field with an emoji
-task_entry = tk.Entry(window, width=40)
-task_entry.insert(tk.END, "✏️ Enter a task")
-task_entry.pack()
+root = tk.Tk()
+root.title('Weather App ☀️☁️🌧️')
 
-# Create an "Add" button to add tasks
-add_button = tk.Button(window, text="Add", command=add_task)
-add_button.pack()
+txt_city = tk.Entry(root, font=('Helvetica', 24))
+txt_city.pack(pady=20)
 
-# Create a list to display tasks
-task_list = tk.Listbox(window, selectmode=tk.SINGLE, width=40, height=10)
-task_list.pack()
+btn_search = tk.Button(root, text='Search 🔍', command=search, font=('Helvetica', 20))
+btn_search.pack()
 
-# Create a "Remove" button to remove selected tasks
-remove_button = tk.Button(window, text="Remove", command=remove_task)
-remove_button.pack()
+lbl_location = tk.Label(root, font=('Helvetica', 22), fg='blue')
+lbl_location.pack()
 
-# Create a "Show List" button to display the entire task list
-show_list_button = tk.Button(window, text="Show List", command=show_list)
-show_list_button.pack()
+lbl_temperature = tk.Label(root, font=('Helvetica', 24), fg='red')
+lbl_temperature.pack()
 
-window.mainloop()
+lbl_weather = tk.Label(root, font=('Helvetica', 22), fg='green')
+lbl_weather.pack()
+
+lbl_description = tk.Label(root, font=('Helvetica', 22), fg='purple')
+lbl_description.pack()
+
+lbl_humidity = tk.Label(root, font=('Helvetica', 22), fg='orange')
+lbl_humidity.pack()
+
+lbl_wind_speed = tk.Label(root, font=('Helvetica', 22), fg='brown')
+lbl_wind_speed.pack()
+
+root.mainloop()
